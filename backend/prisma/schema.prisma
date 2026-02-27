@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PLAYER
+  UMPIRE
+  SCORER
+  OFFICIAL
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(uuid())
+  firebaseUid   String?   @unique // For Mobile OTP (Firebase)
+  email         String?   @unique // For Email OTP (Custom PHPMailer)
+  phone         String?   @unique
+  role          Role      @default(PLAYER)
+  onboarded     Boolean   @default(false)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  playerProfile PlayerProfile?
+}
+
+model PlayerProfile {
+  id            String    @id @default(uuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  fullName      String
+  city          String
+  gender        String
+  avatarUrl     String?
+  
+  battingStyle  String?
+  bowlingStyle  String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
