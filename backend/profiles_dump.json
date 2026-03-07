@@ -1,0 +1,44 @@
+[
+  {
+    "id": "cdb34163-db91-43ca-8eab-56099d664f97",
+    "userId": "5e647402-a98c-455b-9a8c-6f6f2dbd827f",
+    "fullName": "Abhinav Email",
+    "city": "Deoli",
+    "gender": "Male",
+    "avatarUrl": null,
+    "battingStyle": "Right-hand Bat",
+    "bowlingStyle": "Right-arm medium",
+    "playingRole": "Wicket-keeper batter",
+    "dateOfBirth": "2003-01-09T00:00:00.000Z",
+    "createdAt": "2026-03-06T19:21:30.724Z",
+    "updatedAt": "2026-03-06T19:28:19.991Z"
+  },
+  {
+    "id": "d1f56bfa-bff3-41f9-b593-0ef6effb4001",
+    "userId": "0cdae0f7-c79a-414d-89ec-a96ca9188d83",
+    "fullName": "Abhinav Mobile",
+    "city": "Bengaluru",
+    "gender": "Male",
+    "avatarUrl": "https://res.cloudinary.com/dzdixpqgl/image/upload/v1772883522/wickets_ai/avatars/t0kusv9mqfds8bcueblq.jpg",
+    "battingStyle": "Right-hand Bat",
+    "bowlingStyle": "Right-arm medium",
+    "playingRole": "Middle-order batter",
+    "dateOfBirth": "2003-06-25T00:00:00.000Z",
+    "createdAt": "2026-03-06T19:22:27.735Z",
+    "updatedAt": "2026-03-07T11:40:05.735Z"
+  },
+  {
+    "id": "dbe6dd3d-42a8-466c-a235-63e9bfb10c55",
+    "userId": "bd539abf-f260-4c58-868d-ccd5edce2cc8",
+    "fullName": "Abhinav Christ",
+    "city": "Kota",
+    "gender": "Male",
+    "avatarUrl": "https://res.cloudinary.com/dzdixpqgl/image/upload/v1772883471/wickets_ai/avatars/xjwlbqkik5wu74bk22w4.jpg",
+    "battingStyle": "Right-hand Bat",
+    "bowlingStyle": "Right-arm medium",
+    "playingRole": "Wicket-keeper batter",
+    "dateOfBirth": "2003-01-10T00:00:00.000Z",
+    "createdAt": "2026-03-06T19:52:57.565Z",
+    "updatedAt": "2026-03-07T11:38:04.420Z"
+  }
+]

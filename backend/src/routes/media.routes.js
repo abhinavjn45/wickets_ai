@@ -46,4 +46,27 @@ router.post('/upload', upload.single('image'), async (req, res) => {
     }
 });
 
+// 3. Delete Endpoint
+router.post('/delete', async (req, res) => {
+    try {
+        const { url } = req.body;
+        if (!url) {
+            return res.status(400).json({ error: 'No URL provided' });
+        }
+
+        // Extract public ID from Cloudinary URL
+        // Example URL: https://res.cloudinary.com/xxxx/image/upload/v12345/wickets_ai/avatars/avatar_123.jpg
+        const splitUrl = url.split('/');
+        const filename = splitUrl.pop(); // avatar_123.jpg
+        const folderPath = splitUrl.slice(splitUrl.indexOf('wickets_ai')).join('/'); // wickets_ai/avatars
+        const publicId = `${folderPath}/${filename.split('.')[0]}`; // wickets_ai/avatars/avatar_123
+
+        const result = await cloudinary.uploader.destroy(publicId);
+        res.status(200).json({ success: true, result });
+    } catch (error) {
+        console.error('Cloudinary Delete failed:', error);
+        res.status(500).json({ error: 'Failed to delete image' });
+    }
+});
+
 module.exports = router;

@@ -41,6 +41,8 @@ model PlayerProfile {
   
   battingStyle  String?
   bowlingStyle  String?
+  playingRole   String?
+  dateOfBirth   DateTime?
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

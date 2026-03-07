@@ -20,25 +20,37 @@ router.post('/verify', async (req, res) => {
 
         if (loginMethod === 'email') {
             // Custom Email OTP Flow
-            user = await prisma.user.findUnique({ where: { email } });
+            user = await prisma.user.findUnique({
+                where: { email },
+                include: { playerProfile: true }
+            });
             if (!user) {
                 user = await prisma.user.create({
-                    data: { email }
+                    data: { email },
+                    include: { playerProfile: true }
                 });
             }
         } else if (loginMethod === 'mobile') {
             // Firebase Mobile OTP Flow
-            user = await prisma.user.findUnique({ where: { firebaseUid: uid } });
+            user = await prisma.user.findUnique({
+                where: { firebaseUid: uid },
+                include: { playerProfile: true }
+            });
             if (!user) {
-                user = await prisma.user.findUnique({ where: { phone } });
+                user = await prisma.user.findUnique({
+                    where: { phone },
+                    include: { playerProfile: true }
+                });
                 if (user) {
                     user = await prisma.user.update({
                         where: { id: user.id },
-                        data: { firebaseUid: uid }
+                        data: { firebaseUid: uid },
+                        include: { playerProfile: true }
                     });
                 } else {
                     user = await prisma.user.create({
-                        data: { firebaseUid: uid, phone }
+                        data: { firebaseUid: uid, phone },
+                        include: { playerProfile: true }
                     });
                 }
             }
@@ -57,8 +69,12 @@ router.post('/verify', async (req, res) => {
             user: {
                 id: user.id,
                 role: user.role,
-                onboarded: user.onboarded
-            }
+                onboarded: user.onboarded,
+                phone: user.phone,
+                email: user.email,
+                createdAt: user.createdAt
+            },
+            profile: user.playerProfile || null
         });
 
     } catch (error) {
