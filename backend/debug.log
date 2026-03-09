@@ -1,15 +1,16 @@
-PrismaClientUnknownRequestError: 
-Invalid `prisma.playerProfile.upsert()` invocation in
-D:\xampp\htdocs\clg_projects\wickets_ai\backend\src\routes\users.routes.js:93:59
+PrismaClientInitializationError: 
+Invalid `prisma.playerprofile.upsert()` invocation in
+D:\xampp\htdocs\clg_projects\wickets_ai\backend\src\routes\users.routes.js:157:59
 
-  90 }
-  91 
-  92 // 2. Upsert the Player Profile
-→ 93 const updatedProfile = await prisma.playerProfile.upsert(
-Error occurred during query execution:
-ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(Server(MysqlError { code: 1932, message: "Table 'wickets_ai.playerprofile' doesn't exist in engine", state: "42S02" })), transient: false })
-    at ei.handleRequestError (D:\xampp\htdocs\clg_projects\wickets_ai\backend\node_modules\@prisma\client\runtime\library.js:121:7458)
+  154 }
+  155 
+  156 // 2. Upsert the Player Profile
+→ 157 const updatedProfile = await prisma.playerprofile.upsert(
+Can't reach database server at `localhost:3306`
+
+Please make sure your database server is running at `localhost:3306`.
+    at ei.handleRequestError (D:\xampp\htdocs\clg_projects\wickets_ai\backend\node_modules\@prisma\client\runtime\library.js:121:7568)
     at ei.handleAndLogRequestError (D:\xampp\htdocs\clg_projects\wickets_ai\backend\node_modules\@prisma\client\runtime\library.js:121:6593)
     at ei.request (D:\xampp\htdocs\clg_projects\wickets_ai\backend\node_modules\@prisma\client\runtime\library.js:121:6300)
     at async a (D:\xampp\htdocs\clg_projects\wickets_ai\backend\node_modules\@prisma\client\runtime\library.js:130:9551)
-    at async D:\xampp\htdocs\clg_projects\wickets_ai\backend\src\routes\users.routes.js:93:32
+    at async D:\xampp\htdocs\clg_projects\wickets_ai\backend\src\routes\users.routes.js:157:32
