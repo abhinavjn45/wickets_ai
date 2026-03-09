@@ -20,18 +20,50 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
+// GET: Check username availability
+router.get('/check-username/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+
+        // Validation: 3-20 chars, alphanumeric or underscores
+        const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+        if (!usernameRegex.test(username)) {
+            return res.json({
+                success: true,
+                available: false,
+                message: 'Username must be 3-20 characters long and can only contain letters, numbers, and underscores.'
+            });
+        }
+
+        const existingUser = await prisma.user.findUnique({
+            where: { username: username.toLowerCase() }
+        });
+
+        res.json({ success: true, available: !existingUser });
+    } catch (error) {
+        console.error('Check Username Error:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
 // POST: Save Onboarding Data
 router.post('/onboard', authMiddleware, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { fullName, city, gender, avatarUrl } = req.body;
+        const { fullName, city, gender, avatarUrl, username } = req.body;
 
-        if (!fullName || !city || !gender) {
+        if (!fullName || !city || !gender || !username) {
             return res.status(400).json({ success: false, message: 'Missing required onboarding fields' });
         }
 
+        // Check username uniqueness again for safety
+        const existingUsername = await prisma.user.findUnique({ where: { username: username.toLowerCase() } });
+        if (existingUsername && existingUsername.id !== userId) {
+            return res.status(400).json({ success: false, message: 'Username is already taken' });
+        }
+
         // Create or Update player profile
-        const profile = await prisma.playerProfile.upsert({
+        const profile = await prisma.playerprofile.upsert({
             where: { userId },
             update: {
                 fullName,
@@ -48,10 +80,13 @@ router.post('/onboard', authMiddleware, async (req, res) => {
             }
         });
 
-        // Mark user as onboarded
+        // Mark user as onboarded and save username
         const updatedUser = await prisma.user.update({
             where: { id: userId },
-            data: { onboarded: true }
+            data: {
+                onboarded: true,
+                username: username.toLowerCase()
+            }
         });
 
         // Re-issue a new JWT with the updated onboarded status
@@ -78,18 +113,34 @@ router.post('/onboard', authMiddleware, async (req, res) => {
 router.put('/profile', authMiddleware, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { fullName, city, dateOfBirth, playingRole, battingStyle, bowlingStyle, gender, avatarUrl, email } = req.body;
+        const { fullName, city, dateOfBirth, playingRole, battingStyle, bowlingStyle, gender, avatarUrl, email, username } = req.body;
 
-        // Optional: Link Email if provided
+        const updateData = {};
+
+        // 1. Handle Username update
+        if (username) {
+            const lowUsername = username.toLowerCase();
+            const existingUser = await prisma.user.findUnique({ where: { username: lowUsername } });
+            if (existingUser && existingUser.id !== userId) {
+                return res.status(400).json({ success: false, message: 'Username is already taken' });
+            }
+            updateData.username = lowUsername;
+        }
+
+        // 2. Handle Email update
         if (email) {
-            // Check if email is already taken by someone else
             const existingUser = await prisma.user.findUnique({ where: { email } });
             if (existingUser && existingUser.id !== userId) {
-                return res.status(400).json({ success: false, message: 'This email is already in use by another account.' });
+                return res.status(400).json({ success: false, message: 'Email is already in use' });
             }
+            updateData.email = email;
+        }
+
+        // Apply User updates if any
+        if (Object.keys(updateData).length > 0) {
             await prisma.user.update({
                 where: { id: userId },
-                data: { email }
+                data: updateData
             });
         }
 
@@ -103,7 +154,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
         }
 
         // 2. Upsert the Player Profile
-        const updatedProfile = await prisma.playerProfile.upsert({
+        const updatedProfile = await prisma.playerprofile.upsert({
             where: { userId },
             update: {
                 fullName: fullName !== undefined ? fullName : undefined,
@@ -152,7 +203,7 @@ router.post('/check-email', authMiddleware, async (req, res) => {
         const { email } = req.body;
         const existingUser = await prisma.user.findUnique({
             where: { email },
-            include: { playerProfile: true }
+            include: { playerprofile: true }
         });
 
         if (existingUser && existingUser.id !== req.user.id) {
@@ -160,8 +211,8 @@ router.post('/check-email', authMiddleware, async (req, res) => {
                 success: true,
                 exists: true,
                 existingProfile: {
-                    fullName: existingUser.playerProfile?.fullName || 'Unknown Player',
-                    city: existingUser.playerProfile?.city || 'Unknown Location'
+                    fullName: existingUser.playerprofile?.fullName || 'Unknown Player',
+                    city: existingUser.playerprofile?.city || 'Unknown Location'
                 }
             });
         }
@@ -181,11 +232,11 @@ router.post('/merge', authMiddleware, async (req, res) => {
         // 1. Get both users
         const currentUser = await prisma.user.findUnique({
             where: { id: currentUserId },
-            include: { playerProfile: true }
+            include: { playerprofile: true }
         });
         const existingUser = await prisma.user.findUnique({
             where: { email: targetEmail },
-            include: { playerProfile: true }
+            include: { playerprofile: true }
         });
 
         if (!existingUser || existingUser.id === currentUserId) {
@@ -202,10 +253,10 @@ router.post('/merge', authMiddleware, async (req, res) => {
         });
 
         // 3. Resolve profile conflict
-        if (keepProfile === 'current' && currentUser.playerProfile) {
+        if (keepProfile === 'current' && currentUser.playerprofile) {
             // Overwrite existing profile with current one
-            const cp = currentUser.playerProfile;
-            await prisma.playerProfile.upsert({
+            const cp = currentUser.playerprofile;
+            await prisma.playerprofile.upsert({
                 where: { userId: existingUser.id },
                 update: {
                     fullName: cp.fullName,
@@ -239,7 +290,7 @@ router.post('/merge', authMiddleware, async (req, res) => {
         // 5. Fetch fully merged user payload
         const finalMergedUser = await prisma.user.findUnique({
             where: { id: existingUser.id },
-            include: { playerProfile: true }
+            include: { playerprofile: true }
         });
 
         // 6. Generate fresh session JWT for merged account
@@ -261,7 +312,7 @@ router.post('/merge', authMiddleware, async (req, res) => {
                 email: finalMergedUser.email,
                 createdAt: finalMergedUser.createdAt
             },
-            profile: finalMergedUser.playerProfile
+            profile: finalMergedUser.playerprofile
         });
 
     } catch (error) {

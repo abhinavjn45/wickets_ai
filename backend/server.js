@@ -27,4 +27,31 @@ app.get('/api/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`\n🚀 Wickets.ai Backend Server is running on port ${PORT}\n`));
+
+const server = app.listen(PORT, () => {
+    console.log(`\n🚀 Wickets.ai Backend Server is running on port ${PORT}\n`);
+});
+
+// Explicit Error Handling for the server
+server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} is already in use. Please clear hanging processes and try again.`);
+        process.exit(1);
+    } else {
+        console.error('❌ Server startup error:', error);
+        process.exit(1);
+    }
+});
+
+// Catch systemic crashes to log them before exiting
+process.on('uncaughtException', (error) => {
+    console.error('🔥 CRITICAL: Uncaught Exception:', error);
+    // Add specific logging to a file if needed
+    require('fs').appendFileSync('debug.log', `\n[${new Date().toISOString()}] Uncaught Exception: ${error.stack || error}`);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('⚠️ Unhandled Rejection at:', promise, 'reason:', reason);
+    require('fs').appendFileSync('debug.log', `\n[${new Date().toISOString()}] Unhandled Rejection: ${reason}`);
+});

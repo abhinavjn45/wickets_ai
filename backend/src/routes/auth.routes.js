@@ -22,35 +22,35 @@ router.post('/verify', async (req, res) => {
             // Custom Email OTP Flow
             user = await prisma.user.findUnique({
                 where: { email },
-                include: { playerProfile: true }
+                include: { playerprofile: true }
             });
             if (!user) {
                 user = await prisma.user.create({
                     data: { email },
-                    include: { playerProfile: true }
+                    include: { playerprofile: true }
                 });
             }
         } else if (loginMethod === 'mobile') {
             // Firebase Mobile OTP Flow
             user = await prisma.user.findUnique({
                 where: { firebaseUid: uid },
-                include: { playerProfile: true }
+                include: { playerprofile: true }
             });
             if (!user) {
                 user = await prisma.user.findUnique({
                     where: { phone },
-                    include: { playerProfile: true }
+                    include: { playerprofile: true }
                 });
                 if (user) {
                     user = await prisma.user.update({
                         where: { id: user.id },
                         data: { firebaseUid: uid },
-                        include: { playerProfile: true }
+                        include: { playerprofile: true }
                     });
                 } else {
                     user = await prisma.user.create({
                         data: { firebaseUid: uid, phone },
-                        include: { playerProfile: true }
+                        include: { playerprofile: true }
                     });
                 }
             }
@@ -74,7 +74,7 @@ router.post('/verify', async (req, res) => {
                 email: user.email,
                 createdAt: user.createdAt
             },
-            profile: user.playerProfile || null
+            profile: user.playerprofile || null
         });
 
     } catch (error) {

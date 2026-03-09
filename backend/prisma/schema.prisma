@@ -7,43 +7,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
+model playerprofile {
+  id           String    @id @default(uuid())
+  userId       String    @unique(map: "PlayerProfile_userId_key")
+  fullName     String
+  city         String
+  gender       String
+  avatarUrl    String?
+  battingStyle String?
+  bowlingStyle String?
+  playingRole  String?
+  dateOfBirth  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         user      @relation(fields: [userId], references: [id], onDelete: Cascade, map: "PlayerProfile_userId_fkey")
+}
+
+model user {
+  id            String         @id @default(uuid())
+  firebaseUid   String?        @unique(map: "User_firebaseUid_key")
+  email         String?        @unique(map: "User_email_key")
+  phone         String?        @unique(map: "User_phone_key")
+  role          user_role      @default(PLAYER)
+  onboarded     Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  username      String?        @unique(map: "User_username_key")
+  playerprofile playerprofile?
+}
+
+enum user_role {
   PLAYER
   UMPIRE
   SCORER
   OFFICIAL
   ADMIN
-}
-
-model User {
-  id            String    @id @default(uuid())
-  firebaseUid   String?   @unique // For Mobile OTP (Firebase)
-  email         String?   @unique // For Email OTP (Custom PHPMailer)
-  phone         String?   @unique
-  role          Role      @default(PLAYER)
-  onboarded     Boolean   @default(false)
-  
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  playerProfile PlayerProfile?
-}
-
-model PlayerProfile {
-  id            String    @id @default(uuid())
-  userId        String    @unique
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  fullName      String
-  city          String
-  gender        String
-  avatarUrl     String?
-  
-  battingStyle  String?
-  bowlingStyle  String?
-  playingRole   String?
-  dateOfBirth   DateTime?
-  
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
 }
