@@ -16,10 +16,12 @@ app.use(morgan('dev'));
 const authRoutes = require('./src/routes/auth.routes');
 const usersRoutes = require('./src/routes/users.routes');
 const mediaRoutes = require('./src/routes/media.routes');
+const requirementsRoutes = require('./src/routes/requirements.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/media', mediaRoutes);
+app.use('/api/requirements', requirementsRoutes);
 
 // Health Check
 app.get('/api/health', (req, res) => {

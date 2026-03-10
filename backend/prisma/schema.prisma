@@ -34,6 +34,28 @@ model user {
   updatedAt     DateTime       @updatedAt
   username      String?        @unique(map: "User_username_key")
   playerprofile playerprofile?
+  requirements  requirement[]
+}
+
+model requirement {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String   // TOURNAMENT, PLAYER, TEAM, MATCH, GROUND, UMPIRE, SCORER, COMMENTATOR, STREAMER
+  category  String   // The 10 grid items: teams_tourney, join_tourney, etc.
+  title     String
+  city      String
+  area      String
+  ground    String?
+  details   String?  @db.Text
+  metaData  Json?    // For specific fields like overs, ballType, prizeType, etc.
+  status    String   @default("OPEN") // OPEN, CLOSED, EXPIRED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([city])
+  @@index([category])
 }
 
 enum user_role {
