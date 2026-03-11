@@ -77,7 +77,10 @@ router.get('/', async (req, res) => {
                         playerprofile: {
                             select: {
                                 avatarUrl: true,
-                                fullName: true
+                                fullName: true,
+                                bowlingStyle: true,
+                                battingStyle: true,
+                                playingRole: true
                             }
                         }
                     }
