@@ -58,15 +58,19 @@ router.post('/', authMiddleware, async (req, res) => {
 // GET /api/requirements - Fetch requirements with filters
 router.get('/', async (req, res) => {
     try {
-        const { city, category, type } = req.query;
+        const { city, category, type, userId, status } = req.query;
 
-        const where = {
-            status: 'OPEN'
-        };
+        const where = {};
+        if (status === 'INACTIVE') {
+            where.status = { not: 'OPEN' };
+        } else {
+            where.status = status || 'OPEN';
+        }
 
         if (city) where.city = city;
         if (category) where.category = category;
         if (type) where.type = type;
+        if (userId) where.userId = userId;
 
         const requirements = await prisma.requirement.findMany({
             where,
